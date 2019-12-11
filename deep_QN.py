@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 import random
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
 
@@ -35,6 +35,8 @@ class DQN:
         self.final_positions = []
 
     def create_model(self):
+
+
         model   = Sequential()
         state_shape  = self.env.observation_space['low'].shape
         model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
@@ -43,6 +45,11 @@ class DQN:
         model.add(Dense(len(self.env.action_space)))
         model.compile(loss="mean_squared_error",
             optimizer=Adam(lr=self.learning_rate))
+
+        model = load_model("success.model")
+        print("success")
+        # except:
+        #     pass
         return model
 
     def act(self, state):
@@ -108,11 +115,13 @@ class DQN:
             self.rewards.append(tot_reward)
             self.iterations.append(step)
 
-            # if (i+1) % 0 == 0:
+
             avg_reward = np.mean(self.rewards)
             self.avg_rewards.append(avg_reward)
             self.rewards = []
             print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
+            if (i+1) % 10 == 0:
+                self.save_model("success-my.model")
 
     def viz(self, save=True):
             fig, ax = plt.subplots(3,sharex=True, figsize=(10, 10))
