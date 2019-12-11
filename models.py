@@ -2,11 +2,10 @@ import numpy as np
 import gym
 import matplotlib.pyplot as plt
 from game import MountainCarEnv
-# Import and initialize Mountain Car Environment
-env = MountainCarEnv()
+
 
 # Define Q-learning function
-class QLearning():
+class QLearning:
 
     def __init__(self, env, learning, discount, epsilon, min_eps, episodes):
         self.env = env
@@ -89,7 +88,7 @@ class QLearning():
                 discrete_state = new_discrete_state
 
                 iteration+=1
-                if iteration>=200:
+                if iteration>=self.env.max_episodes:
                     break
             self.final_positions.append(new_state[0])
 
@@ -104,7 +103,7 @@ class QLearning():
             if (i+1) % 100 == 0:
                 avg_reward = np.mean(self.rewards)
                 self.avg_rewards.append(avg_reward)
-                rewards = []
+                self.rewards = []
                 print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
 
     def viz(self, save=True):
@@ -120,9 +119,10 @@ class QLearning():
         ax[2].plot(100*(np.arange(len(self.rewards)) + 1), self.final_positions)
         ax[2].set(xlabel="Episodes",ylabel="Final Pos")
         ax[2].set_title('Final Position vs Episodes')
-        plt.savefig('rewards.jpg')
+        plt.savefig('rewards_qn.jpg')
 
-
+# Import and initialize Mountain Car Environment
+env = MountainCarEnv()
 # Run Q-learning algorithm
 model = QLearning(env, 0.2, 0.9, 0.8, 0, 20000)
 model.train()

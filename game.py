@@ -9,6 +9,7 @@ class MountainCarEnv():
         self.max_position = 0.6
         self.max_vel = 0.07
         self.target_position = 0.5
+        self.max_episodes = 200
 
 
         self.low = np.array([self.min_position, -self.max_vel])
@@ -21,7 +22,7 @@ class MountainCarEnv():
         # pos_discrete_obs = np.round()
 
         self.action_space = [-1, 0, 1]
-        self.observation_space = {'low':[self.low], 'high':[self.high]}
+        self.observation_space = {'low':self.low, 'high':self.high}
 
         if seed is not None:
             np.random.seed(seed)
