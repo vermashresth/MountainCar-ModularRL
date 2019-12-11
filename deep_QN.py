@@ -48,8 +48,8 @@ class DQN:
         try:
             model = load_model("success-my.model")
             print("success")
-        # except:
-        #     pass
+        except:
+            pass
         return model
 
     def act(self, state):
