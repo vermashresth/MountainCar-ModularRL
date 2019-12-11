@@ -45,9 +45,9 @@ class DQN:
         model.add(Dense(len(self.env.action_space)))
         model.compile(loss="mean_squared_error",
             optimizer=Adam(lr=self.learning_rate))
-
-        model = load_model("success.model")
-        print("success")
+        try:
+            model = load_model("success-my.model")
+            print("success")
         # except:
         #     pass
         return model
