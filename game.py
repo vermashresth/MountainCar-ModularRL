@@ -1,4 +1,3 @@
-
 import math
 import numpy as np
 
@@ -33,7 +32,7 @@ class MountainCarEnv():
         position, velocity = self.state
 
         action = self.action_space[action]
-        
+
         velocity += action*0.001 - math.cos(3*position)*0.0025
         velocity = np.clip(velocity, -self.max_vel, self.max_vel)
 

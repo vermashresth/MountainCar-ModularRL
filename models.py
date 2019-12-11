@@ -16,20 +16,8 @@ class QLearning():
         self.min_eps = min_eps
         self.episodes = episodes
 
-        obs_space = env.observation_space
-        action_space = env.action_space
 
-        pos_range = env.max_position-env.min_position+1
-        vel_range = env.max_vel*2+1
-
-        pos_discrete_states = int(pos_range*10)
-        vel_discrete_states = int(vel_range*100)
-
-        # discrete_states = ((env.high-eng.low)*np.array([10, 100])+1).astype(int)
-
-        self.Q_table = np.random.uniform(low = -1, high = 1,
-                                    size = (pos_discrete_states, vel_discrete_states,
-                                    len(env.action_space)))
+        self.Q_table = self.create_model()
 
         # Initialize metric lists
         self.rewards = []
@@ -39,6 +27,28 @@ class QLearning():
 
         # Calculate episodic reduction in epsilon
         self.reduction = (self.epsilon - self.min_eps)/self.episodes
+
+    def create_model(self):
+        pos_range = self.env.max_position-env.min_position+1
+        vel_range = self.env.max_vel*2+1
+
+        pos_discrete_states = int(pos_range*10)
+        vel_discrete_states = int(vel_range*100)
+
+        # discrete_states = ((env.high-eng.low)*np.array([10, 100])+1).astype(int)
+
+        Q_table = np.random.uniform(low = -1, high = 1,
+                                    size = (pos_discrete_states, vel_discrete_states,
+                                    len(self.env.action_space)))
+        return Q_table
+
+    def act(self, state):
+        # Determine next action - epsilon greedy strategy
+        if np.random.random() < 1 - self.epsilon:
+            action = np.argmax(self.Q_table[state[0], state[1]])
+        else:
+            action = np.random.randint(0, len(self.env.action_space))
+        return action
 
     def train(self):
         # Run Q learning algorithm
@@ -50,19 +60,11 @@ class QLearning():
 
             # Discretize state
             discrete_state = ((state - self.env.observation_space['low'])*np.array([10, 100])).astype(int).flatten()
-            # pos_discrete_state = int((pos - env.observation_space['low'][0])*10)
-            # vel_discrete_state = int((vel - env.observation_space['low'][1])*100)
-            #
-            # discrete_state = np.array([pos_discrete_state, vel_discrete_state]).astype(int)
 
             iteration = 0
             while done != True:
 
-                # Determine next action - epsilon greedy strategy
-                if np.random.random() < 1 - self.epsilon:
-                    action = np.argmax(self.Q_table[discrete_state[0], discrete_state[1]])
-                else:
-                    action = np.random.randint(0, len(self.env.action_space))
+                action = self.act(discrete_state)
 
                 # Get next state and reward
                 new_state, reward, done, _ = self.env.step(action)
@@ -100,7 +102,6 @@ class QLearning():
             self.iterations.append(iteration)
 
             if (i+1) % 100 == 0:
-                print(action)
                 avg_reward = np.mean(self.rewards)
                 self.avg_rewards.append(avg_reward)
                 rewards = []
@@ -123,6 +124,6 @@ class QLearning():
 
 
 # Run Q-learning algorithm
-model = QLearning(env, 0.2, 0.9, 0.8, 0, 200)
+model = QLearning(env, 0.2, 0.9, 0.8, 0, 20000)
 model.train()
 model.viz()
