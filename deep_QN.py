@@ -114,15 +114,6 @@ class DQN:
             self.rewards = []
             print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
 
-            if step >= 199:
-                print("Failed to complete in trial {}".format(i))
-                if step % 10 == 0:
-                    dqn_agent.save_model("trial-{}.model".format(i))
-            else:
-                print("Completed in {} self.episodes".format(i))
-                dqn_agent.save_model("success.model")
-                break
-
     def viz(self, save=True):
             fig, ax = plt.subplots(3,sharex=True, figsize=(10, 10))
             ax[0].plot(100*(np.arange(len(self.rewards)) + 1), self.rewards)
@@ -144,3 +135,4 @@ env = MountainCarEnv()
 # updateTargetNetwork = 1000
 dqn_agent = DQN(env=env)
 dqn_agent.train()
+dqn_agent.viz()
