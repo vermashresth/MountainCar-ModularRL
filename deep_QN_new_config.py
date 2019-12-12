@@ -15,7 +15,7 @@ from game import MountainCarEnv
 
 class DQN:
 
-    def __init__(self, env, gamma=0.95, epsilon=1, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=.005, tau=0.125, max_buffer=10000, episodes = 500, max_episode_len = 1500):
+    def __init__(self, env, gamma=0.9, epsilon=1, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=.005, tau=0.125, max_buffer=10000, episodes = 1000, max_episode_len = 2000):
         self.env = env
         self.memory = deque(maxlen=max_buffer)
 
@@ -39,11 +39,11 @@ class DQN:
         self.final_positions = []
 
         try:
-            with open("deep_qn/rewards.pkl", "wb") as f:
+            with open("deep_qn_new/rewards.pkl", "wb") as f:
                 self.rewards = pickle.load(f)
-            with open("deep_qn/iterations.pkl", "wb") as f:
+            with open("deep_qn_new/iterations.pkl", "wb") as f:
                 self.iterations =  pickle.load(f)
-            with open("deep_qn/final_positions.pkl", "wb") as f:
+            with open("deep_qn_new/final_positions.pkl", "wb") as f:
                 self.final_positions =  pickle.load(f)
             print("loaded logs")
         except:
@@ -54,19 +54,19 @@ class DQN:
 
         model   = Sequential()
         state_shape  = self.env.observation_space['low'].shape
-        model.add(Dense(64, input_dim=state_shape[0], activation="relu"))
+        model.add(Dense(200, input_dim=state_shape[0], activation="relu"))
         # model.add(Dense(48, activation="relu"))
-        model.add(Dense(64, activation="relu"))
+        model.add(Dense(200, activation="relu"))
         model.add(Dense(len(self.env.action_space)))
         model.compile(loss="mean_squared_error",
             optimizer=Adam(lr=self.learning_rate))
         try:
-            json_file = open('model.json', 'r')
+            json_file = open('model-new.json', 'r')
             loaded_model_json = json_file.read()
             json_file.close()
             loaded_model = model_from_json(loaded_model_json)
             # load weights into new model
-            loaded_model.load_weights("model.h5")
+            loaded_model.load_weights("model-new.h5")
             print("Loaded model from disk")
             loaded_model.compile(loss="mean_squared_error",
                 optimizer=Adam(lr=self.learning_rate))
@@ -111,16 +111,16 @@ class DQN:
     def save_model(self, fn):
         self.model.save(fn)
         model_json = self.model.to_json()
-        with open("model.json", "w") as json_file:
+        with open("model-new.json", "w") as json_file:
             json_file.write(model_json)
         # serialize weights to HDF5
-        self.model.save_weights("model.h5")
+        self.model.save_weights("model-new.h5")
 
-        with open("deep_qn/rewards.pkl", "wb") as f:
+        with open("deep_qn_new/rewards.pkl", "wb") as f:
             pickle.dump(self.rewards, f)
-        with open("deep_qn/iterations.pkl", "wb") as f:
+        with open("deep_qn_new/iterations.pkl", "wb") as f:
             pickle.dump(self.iterations, f)
-        with open("deep_qn/final_positions.pkl", "wb") as f:
+        with open("deep_qn_new/final_positions.pkl", "wb") as f:
             pickle.dump(self.final_positions, f)
         print("Saved model to disk")
 
@@ -158,23 +158,23 @@ class DQN:
             # self.rewards = []
             print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
             if (i+1) % 5 == 0:
-                self.save_model("success-my-2.model")
+                self.save_model("success-my-2-new.model")
                 self.viz()
 
     def viz(self, save=True):
             fig, ax = plt.subplots(3,sharex=True, figsize=(10, 10))
-            ax[0].plot(100*(np.arange(len(self.rewards)) + 1), self.rewards)
+            ax[0].plot(np.arange(len(self.rewards)) + 1, self.rewards)
             ax[0].set(xlabel="Episodes",ylabel="Reward")
             ax[0].set_title('Average Reward vs Episodes')
 
-            ax[1].plot(100*(np.arange(len(self.iterations)) + 1), self.iterations)
+            ax[1].plot(np.arange(len(self.iterations)) + 1, self.iterations)
             ax[1].set(xlabel="Episodes",ylabel="Iterations")
             ax[1].set_title('Iterations till goal/termination ')
 
-            ax[2].plot(100*(np.arange(len(self.rewards)) + 1), self.final_positions)
+            ax[2].plot(np.arange(len(self.rewards) + 1), self.final_positions)
             ax[2].set(xlabel="Episodes",ylabel="Final Pos")
             ax[2].set_title('Final Position vs Episodes')
-            plt.savefig('rewards_dqn-2.jpg')
+            plt.savefig('rewards_dqn_new-2.jpg')
 
 env = MountainCarEnv()
 
