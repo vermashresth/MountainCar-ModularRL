@@ -4,13 +4,14 @@ import numpy as np
 
 class MountainCarEnv():
 
-    def __init__(self, seed=None):
+    def __init__(self, fuelCost=None, seed=None):
         self.min_position = -1.2
         self.max_position = 0.6
         self.max_vel = 0.07
         self.target_position = 0.5
         self.max_episodes = 200
-
+        if fuelCost !=None:
+            self.fc = fuelCost
 
         self.low = np.array([self.min_position, -self.max_vel])
         self.high = np.array([self.max_position, self.max_vel])
@@ -47,6 +48,8 @@ class MountainCarEnv():
             done = True
 
         reward = -1.0
+        if action!=0:
+            reward -= self.fc
 
         self.state = np.array([position, velocity])
         return self.state, reward, done, {}
