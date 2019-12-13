@@ -41,7 +41,7 @@ class QLearning:
                                     len(self.env.action_space)))
         return Q_table
 
-    def act(self, state):
+    def choose_action(self, state):
         # Determine next action - epsilon greedy strategy
         if np.random.random() < 1 - self.epsilon:
             action = np.argmax(self.Q_table[state[0], state[1]])
@@ -49,7 +49,7 @@ class QLearning:
             action = np.random.randint(0, len(self.env.action_space))
         return action
 
-    def train(self):
+    def update(self):
         # Run Q learning algorithm
         for i in range(self.episodes):
             # Initialize parameters
@@ -57,13 +57,16 @@ class QLearning:
             tot_reward, reward = 0,0
             state = self.env.reset()
 
+            if (i+1)%5==0:
+                self.viz()
+
             # Discretize state
             discrete_state = ((state - self.env.observation_space['low'])*np.array([10, 100])).astype(int).flatten()
 
             iteration = 0
             while done != True:
 
-                action = self.act(discrete_state)
+                action = self.choose_action(discrete_state)
 
                 # Get next state and reward
                 new_state, reward, done, _ = self.env.step(action)
@@ -107,23 +110,24 @@ class QLearning:
                 print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
 
     def viz(self, save=True):
-        fig, ax = plt.subplots(3,sharex=True, figsize=(10, 10))
+        fig, ax = plt.subplots(1,sharex=True, figsize=(10, 5))
         ax[0].plot(100*(np.arange(len(self.rewards)) + 1), self.rewards)
         ax[0].set(xlabel="Episodes",ylabel="Reward")
         ax[0].set_title('Average Reward vs Episodes')
 
-        ax[1].plot(100*(np.arange(len(self.iterations)) + 1), self.iterations)
-        ax[1].set(xlabel="Episodes",ylabel="Iterations")
-        ax[1].set_title('Iterations till goal/termination ')
 
-        ax[2].plot(100*(np.arange(len(self.rewards)) + 1), self.final_positions)
-        ax[2].set(xlabel="Episodes",ylabel="Final Pos")
-        ax[2].set_title('Final Position vs Episodes')
+        ax[1].plot(100*(np.arange(len(self.rewards)) + 1), self.final_positions)
+        ax[1].set(xlabel="Episodes",ylabel="Final Pos")
+        ax[1].set_title('Final Position vs Episodes')
         plt.savefig('rewards_qn.jpg')
 
-# Import and initialize Mountain Car Environment
+learning_rate = 0.2
+discount=0.9
+epsilon=0.8
+min_eps=0
+episodes=2000
+
 env = MountainCarEnv()
 # Run Q-learning algorithm
-model = QLearning(env, 0.2, 0.9, 0.8, 0, 20000)
-model.train()
-model.viz()
+model = QLearning(env, learning_rate, discount, epsilon, min_eps, episodes)
+model.update()
