@@ -61,12 +61,12 @@ class DQN:
         model.compile(loss="mean_squared_error",
             optimizer=Adam(lr=self.learning_rate))
         try:
-            json_file = open('model.json', 'r')
+            json_file = open('model-hack.json', 'r')
             loaded_model_json = json_file.read()
             json_file.close()
             loaded_model = model_from_json(loaded_model_json)
             # load weights into new model
-            loaded_model.load_weights("model.h5")
+            loaded_model.load_weights("model-hack.h5")
             print("Loaded model from disk")
             loaded_model.compile(loss="mean_squared_error",
                 optimizer=Adam(lr=self.learning_rate))
@@ -83,14 +83,15 @@ class DQN:
         return np.argmax(self.model.predict(state)[0])
 
     def remember(self, state, action, reward, new_state, done):
+        self.memory = []
         self.memory.append([state, action, reward, new_state, done])
 
-    def replay(self):
-        batch_size = 64
-        if len(self.memory) < batch_size:
-            return
+    def replay(self, samples):
+        batch_size = 1
+        # if len(self.memory) < batch_size:
+        #     return
 
-        samples = random.sample(self.memory, batch_size)
+        # samples = random.sample(self.memory, batch_size)
         for sample in samples:
             state, action, reward, new_state, done = sample
             target = self.target_model.predict(state)
@@ -111,16 +112,16 @@ class DQN:
     def save_model(self, fn):
         self.model.save(fn)
         model_json = self.model.to_json()
-        with open("model.json", "w") as json_file:
+        with open("model-hack.json", "w") as json_file:
             json_file.write(model_json)
         # serialize weights to HDF5
-        self.model.save_weights("model.h5")
+        self.model.save_weights("model-hack.h5")
 
-        with open("deep_qn/rewards.pkl", "wb") as f:
+        with open("deep_qn_hack/rewards.pkl", "wb") as f:
             pickle.dump(self.rewards, f)
-        with open("deep_qn/iterations.pkl", "wb") as f:
+        with open("deep_qn_hack/iterations.pkl", "wb") as f:
             pickle.dump(self.iterations, f)
-        with open("deep_qn/final_positions.pkl", "wb") as f:
+        with open("deep_qn_hack/final_positions.pkl", "wb") as f:
             pickle.dump(self.final_positions, f)
         print("Saved model to disk")
 
@@ -138,9 +139,9 @@ class DQN:
 
                 # reward = reward if not done else -20
                 new_state = new_state.reshape(1,2)
-                self.remember(cur_state, action, reward, new_state, done)
+                # self.remember(cur_state, action, reward, new_state, done)
 
-                self.replay()       # internally iterates default (prediction) model
+                self.replay([[cur_state, action, reward, new_state, done]])       # internally iterates default (prediction) model
                 self.target_train() # iterates target model
 
                 cur_state = new_state
@@ -161,7 +162,7 @@ class DQN:
             # self.rewards = []
             print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
             if (i+1) % 5 == 0:
-                self.save_model("success-my-2.model")
+                self.save_model("success-my-2-hack.model")
                 self.viz()
 
     def viz(self, save=True):
@@ -177,7 +178,7 @@ class DQN:
             ax[2].plot(np.arange(len(self.rewards)) + 1, np.array(self.final_positions)[:, 0])
             ax[2].set(xlabel="Episodes",ylabel="Final Pos")
             ax[2].set_title('Final Position vs Episodes')
-            plt.savefig('rewards_dqn-2.jpg')
+            plt.savefig('rewards_dqn-2-hack.jpg')
 
 env = MountainCarEnv()
 
