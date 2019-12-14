@@ -1,7 +1,5 @@
 
-# import ipympl
 import matplotlib.pyplot as plt
-import gym
 import numpy as np
 import pandas as pd
 import torch
@@ -9,8 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
-from datetime import datetime
-import glob, os
 
 
 e_greedy = 0.3
@@ -18,20 +14,8 @@ reward_decay = 0.99
 episodes = 3000
 max_steps = 200
 learning_rate = 0.001
-#
-# class Policy(nn.Module):
-#     def __init__(self, action_n, state_n):
-#         super(Policy, self).__init__()
-#         self.fc1 = nn.Linear(state_n, 200)
-#         self.fc1.weight.data.normal_(0, 0.1)   # initialization
-#         self.out = nn.Linear(200, action_n)
-#         self.out.weight.data.normal_(0, 0.1)   # initialization
-#
-#     def forward(self, x):
-#         x = self.fc1(x)
-#         x = F.relu(x)
-#         actions_value = self.out(x)
-#         return actions_value
+
+
 class Policy(nn.Module):
     def __init__(self, action_n, state_n):
         super(Policy, self).__init__()

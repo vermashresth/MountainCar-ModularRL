@@ -1,5 +1,4 @@
 import numpy as np
-import gym
 import matplotlib.pyplot as plt
 from game import MountainCarEnv
 
@@ -133,5 +132,5 @@ episodes=20000
 
 env = MountainCarEnv()
 # Run Q-learning algorithm
-model = QLearning(env, learning_rate, discount, epsilon, min_eps, episodes)
-model.update()
+dqn_agent = QLearning(env, learning_rate, discount, epsilon, min_eps, episodes)
+dqn_agent.update()

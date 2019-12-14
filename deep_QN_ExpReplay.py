@@ -170,10 +170,10 @@ class DQN(object):
         ax[1].plot(np.arange(len(self.final_positions)) + 1, self.final_positions)
         ax[1].set(xlabel="Episodes",ylabel="Final Pos")
         ax[1].set_title('Final Pos vs Episodes')
-        # if self.env.fc==None:
-        #     plt.savefig('rewards_qn_ER.jpg')
-        # else:
-        #     plt.savefig('fuel-rewards_qn_ER.jpg')
+        if self.env.fc==None:
+            plt.savefig('rewards_qn_ER.jpg')
+        else:
+            plt.savefig('fuel-rewards_qn_ER.jpg')
         plt.close(fig)
 
         fig, ax = plt.subplots(1, figsize=(10, 10))
@@ -191,11 +191,13 @@ class DQN(object):
 
 
 from game import MountainCarEnv
-# env = MountainCarEnv()
-# dqn_agent = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
-#
-# dqn_agent.update()
+print("Running env without fuel consideration")
+env = MountainCarEnv()
+dqn_agent = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
 
+dqn_agent.update()
+
+print("\nRunning env with fuel consideration\n")
 env = MountainCarEnv(10)
 dqn_agent_fuel = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
 dqn_agent_fuel.update()
