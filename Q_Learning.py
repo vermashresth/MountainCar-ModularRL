@@ -57,7 +57,7 @@ class QLearning:
             tot_reward, reward = 0,0
             state = self.env.reset()
 
-            if (i+1)%5==0:
+            if (i+1)%1000==0:
                 self.viz()
 
             # Discretize state
@@ -104,28 +104,32 @@ class QLearning:
             self.iterations.append(iteration)
 
             if (i+1) % 100 == 0:
-                avg_reward = np.mean(self.rewards)
+                avg_reward = np.mean(self.rewards[-100:])
                 self.avg_rewards.append(avg_reward)
-                self.rewards = []
-                print('Episode {} Average Reward: {}'.format(i+1, avg_reward))
+                # self.rewards = []
+                print('Episode {} Average Reward: {} Episode Reward: {}'.format(i+1, avg_reward, tot_reward))
 
     def viz(self, save=True):
-        fig, ax = plt.subplots(1,sharex=True, figsize=(10, 5))
-        ax[0].plot(100*(np.arange(len(self.rewards)) + 1), self.rewards)
+        fig, ax = plt.subplots(2,sharex=True, figsize=(10, 5))
+        ax[0].plot(np.arange(len(self.rewards)) + 1, self.rewards)
         ax[0].set(xlabel="Episodes",ylabel="Reward")
         ax[0].set_title('Average Reward vs Episodes')
 
 
-        ax[1].plot(100*(np.arange(len(self.rewards)) + 1), self.final_positions)
+        ax[1].plot(np.arange(len(self.rewards)) + 1, self.final_positions)
         ax[1].set(xlabel="Episodes",ylabel="Final Pos")
         ax[1].set_title('Final Position vs Episodes')
-        plt.savefig('rewards_qn.jpg')
+        if self.env.fc==None:
+            plt.savefig('rewards_qn.jpg')
+        else:
+            plt.savefig('fuel-rewards_qn.jpg')
+        plt.close(fig)
 
 learning_rate = 0.2
 discount=0.9
 epsilon=0.8
 min_eps=0
-episodes=2000
+episodes=20000
 
 env = MountainCarEnv()
 # Run Q-learning algorithm

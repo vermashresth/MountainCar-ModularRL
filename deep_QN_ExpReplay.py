@@ -11,8 +11,8 @@ batch_size = 32
 e_greedy = 0.999
 target_update_freq = 100
 memory_buffer_size = 2000
-episodes = 400
-max_steps=200
+episodes = 200
+max_steps= 200
 
 class Policy(nn.Module):
     def __init__(self, action_n, state_n):
@@ -55,6 +55,7 @@ class DQN(object):
 
         self.rewards = []
         self.final_positions = []
+        self.action_list = []
 
     def create_model(self):
         return Policy(action_n=self.action_n, state_n=self.state_n), Policy(action_n=self.action_n, state_n=self.state_n)
@@ -111,7 +112,10 @@ class DQN(object):
         self.eval_policy.load_state_dict(torch.load(model_name))
 
     def newReward(self, obsesrvation, obsesrvation_):
-        return abs(obsesrvation_[0] - (-0.5))
+        if self.env.fc==None:
+            return abs(obsesrvation_[0] - (-0.5))
+        else:
+            return abs(obsesrvation_[0] - (-0.5)) - self.env.fc
 
     def update(self):
         records = []
@@ -128,11 +132,10 @@ class DQN(object):
             while True:
                 iter_cnt += 1
 
-                # fresh env
-                # env.render()
 
                 # self choose action based on observation
                 action = self.choose_action(observation)
+                self.action_list.append(action)
                 # self take action and get next observation and reward
                 observation_, reward, done, _ = self.env.step(action)
                 true_reward+=reward
@@ -167,13 +170,32 @@ class DQN(object):
         ax[1].plot(np.arange(len(self.final_positions)) + 1, self.final_positions)
         ax[1].set(xlabel="Episodes",ylabel="Final Pos")
         ax[1].set_title('Final Pos vs Episodes')
-        plt.savefig('rewards_qn_ER.jpg')
+        # if self.env.fc==None:
+        #     plt.savefig('rewards_qn_ER.jpg')
+        # else:
+        #     plt.savefig('fuel-rewards_qn_ER.jpg')
+        plt.close(fig)
+
+        fig, ax = plt.subplots(1, figsize=(10, 10))
+        counts = [self.action_list.count(i) for i in [0, 1, 2]]
+        print(counts)
+        ax.bar(range(len(counts)), counts, align='center', alpha=0.5)
+        ax.set(xlabel=[-1, 0, 1],ylabel="Counts")
+        ax.set_title('Action Usage')
+        if self.env.fc==None:
+            plt.savefig('Actions_qn_ER.jpg')
+        else:
+            plt.savefig('Actions-fuel_qn_ER.jpg')
+        plt.close(fig)
 
 
 
 from game import MountainCarEnv
-env = MountainCarEnv()
-dqn_agent = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
+# env = MountainCarEnv()
+# dqn_agent = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
+#
+# dqn_agent.update()
 
-dqn_agent.update()
-dqn_agent.viz()
+env = MountainCarEnv(10)
+dqn_agent_fuel = DQN(env, learning_rate, reward_decay, batch_size, e_greedy, target_update_freq, memory_buffer_size, episodes, max_steps)
+dqn_agent_fuel.update()

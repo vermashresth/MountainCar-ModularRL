@@ -154,7 +154,11 @@ class DQN:
         ax[1].plot(np.arange(len(self.final_positions)) + 1, self.final_positions)
         ax[1].set(xlabel="Episodes",ylabel="Final Pos")
         ax[1].set_title('Final Pos vs Episodes')
-        plt.savefig('rewards_qn_noER.jpg')
+        if self.env.fc==None:
+            plt.savefig('rewards_qn_noER.jpg')
+        else:
+            plt.savefig('fuel-rewards_qn_noER.jpg')
+        plt.close(fig)
 
 
 
